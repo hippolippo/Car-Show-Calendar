@@ -1,0 +1,44 @@
+{
+  "name": "car-calendar-backend",
+  "version": "1.0.0",
+  "description": "Car Show Discovery Platform - Backend API",
+  "main": "src/index.js",
+  "type": "module",
+  "scripts": {
+    "dev": "node --watch src/index.js",
+    "start": "node src/index.js",
+    "test": "vitest",
+    "test:coverage": "vitest --coverage",
+    "test:integration": "vitest run --config vitest.integration.config.js",
+    "migrate": "node scripts/migrate.js",
+    "migrate:create": "node scripts/create-migration.js",
+    "migrate:rollback": "node scripts/rollback-migration.js",
+    "seed": "node scripts/seed.js",
+    "db:reset": "node scripts/db-reset.js"
+  },
+  "keywords": [
+    "car-shows",
+    "events",
+    "express",
+    "rest-api"
+  ],
+  "author": "",
+  "license": "ISC",
+  "devDependencies": {
+    "@types/node": "^25.4.0",
+    "eslint": "^10.0.3",
+    "supertest": "^7.2.2",
+    "vitest": "^4.0.18"
+  },
+  "dependencies": {
+    "bcrypt": "^6.0.0",
+    "cookie-parser": "^1.4.7",
+    "cors": "^2.8.6",
+    "dotenv": "^17.3.1",
+    "express": "^5.2.1",
+    "geolib": "^3.3.4",
+    "jsonwebtoken": "^9.0.3",
+    "multer": "^2.1.1",
+    "pg": "^8.20.0"
+  }
+}
