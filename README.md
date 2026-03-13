@@ -59,6 +59,28 @@ My SpecKit Specs → AI Architecture + Implementation → My Review → Iteratio
 
 This approach taught me how to effectively leverage AI tools by providing clear, comprehensive specifications. The AI handled the technical implementation details while I focused on defining *what* needed to be built and *why*.
 
+### ⚠️ A Note on Learning Extremes
+
+**This project intentionally takes AI agent usage to an extreme** as a learning exercise. I let the AI make nearly all technical decisions (architecture, database design, framework choices, implementation patterns) to explore the limits of AI-assisted development.
+
+**Important Takeaway**: This extreme approach taught me that **there are times when using an AI agent is the right tool, and times when doing things yourself is better**:
+
+**When AI Agents Shine** ✅
+- Generating boilerplate and project scaffolding
+- Implementing well-specified features with clear requirements
+- Writing comprehensive test suites
+- Suggesting best practices and common patterns
+- Handling repetitive coding tasks
+
+**When Hands-On Development Is Better** 🛠️
+- Learning fundamental concepts and building intuition
+- Understanding *why* certain patterns work, not just *what* they are
+- Debugging complex issues that require deep system understanding
+- Making nuanced architectural decisions that require domain expertise
+- Building skills that transfer across projects and technologies
+
+In real-world development, I would take a more balanced approach—using AI for appropriate tasks while personally implementing critical learning opportunities and complex architectural decisions. This project was an experiment in the extreme to understand the boundaries.
+
 ---
 
 ## 🎯 Quick Start
@@ -338,7 +360,9 @@ Features planned but not yet implemented:
 
 ## 🤝 About Contributions
 
-This is a personal learning project demonstrating spec-driven development and AI collaboration. The architecture, specifications, and design decisions are my original work, while implementation was done in partnership with AI coding agents.
+This is a personal learning project demonstrating spec-driven development and AI collaboration as an **intentional extreme experiment**. I wrote the specifications, and the AI handled architecture and implementation to explore the limits of AI-assisted development.
+
+**Note**: In future projects, I plan to use a more balanced approach—leveraging AI for appropriate tasks while personally implementing areas where hands-on learning is valuable.
 
 If you're interested in the methodology or specifications, feel free to explore the `/specs` directory to see how I structured the requirements.
 
@@ -391,6 +415,13 @@ ISC
    - Breaking features into small, granular tasks (SpecKit's task breakdown) makes progress visible
    - Each completed task builds confidence
    - Small iterations are easier to debug than large changes
+
+6. **Know When to Use AI vs. Hands-On Coding** ⚠️
+   - **This project was an extreme experiment**: I let AI handle nearly everything to see what's possible
+   - **Real-world balance is key**: Use AI for boilerplate and well-defined tasks; code yourself when learning or solving novel problems
+   - **AI is a tool, not a replacement**: Understanding *why* code works is still essential
+   - **Learning happens through doing**: Some things need to be built by hand to truly understand them
+   - **Future projects will be hybrid**: Let AI accelerate what I already understand, code by hand what I need to learn
 
 ---
 
