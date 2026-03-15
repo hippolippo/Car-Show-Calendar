@@ -7,16 +7,22 @@ This guide walks you through deploying CarCalendar using **free services** with 
 ## 📋 Deployment Overview
 
 **Free Tier Services Used:**
-- **Frontend**: Vercel (free tier)
-- **Backend**: Railway.app (free trial, then $5/month)
-- **Database**: Railway PostgreSQL with PostGIS (included with backend)
+- **Frontend**: Vercel (free tier - forever)
+- **Backend**: Railway.app (free trial $5 credit, then $5/month)
+- **Database**: Supabase PostgreSQL with PostGIS (free tier - forever)
 - **Image Storage**: Cloudflare R2 (10GB free)
 
 **Estimated Monthly Cost After Free Trials:**
-- Railway: $5/month (covers backend + database)
+- Railway: $5/month (backend hosting)
+- Supabase: Free (up to 500MB database)
 - Cloudflare R2: Free (under 10GB)
 - Vercel: Free
-- **Total: ~$5/month**
+- **Total: $5/month** (just for backend hosting!)
+
+**Alternative: Keep it 100% FREE**
+- Use Render.com free tier for backend (sleeps after 15min inactivity)
+- Everything else stays free
+- **Total: $0/month** (with some limitations)
 
 ---
 
@@ -41,29 +47,78 @@ This guide walks you through deploying CarCalendar using **free services** with 
 2. Click "Sign in with GitHub"
 3. Authorize Railway to access your GitHub account
 
-### 1.2 Create PostgreSQL Database
+### 1.2 Create PostgreSQL Database with PostGIS
 
-1. Click "New Project"
-2. Select "Provision PostgreSQL"
-3. Railway will create a PostgreSQL database
+⚠️ **Important**: Railway's regular PostgreSQL doesn't include PostGIS. You need to use a Docker-based approach or use an alternative database provider.
+
+#### **Option A: Use Neon (Recommended - Free with PostGIS)** ✅
+
+Neon offers free PostgreSQL with PostGIS support:
+
+1. Go to https://neon.tech
+2. Click "Sign up" (use GitHub)
+3. Click "Create Project"
+4. Name it: `car-calendar`
+5. Select region closest to you
+6. Click "Create Project"
+7. Copy the connection string (looks like: `postgresql://user:pass@host.neon.tech/dbname`)
+8. Click on your database
+9. Go to "SQL Editor"
+10. Run this command:
+    ```sql
+    CREATE EXTENSION IF NOT EXISTS postgis;
+    ```
+11. **Save the connection string** - you'll need it for the backend
+
+**✅ Database Ready with PostGIS!**
+
+#### **Option B: Use Railway with PostGIS Docker Image**
+
+If you prefer Railway, you can deploy PostGIS using a Docker container:
+
+1. In Railway, click "New Project"
+2. Click "Empty Project"
+3. Click "New" → "Database" → "Add PostgreSQL"
 4. Click on the PostgreSQL service
-5. Go to "Variables" tab
-6. **Copy these values** (you'll need them later):
-   - `DATABASE_URL` (full connection string)
-   - Or individual values: `PGHOST`, `PGPORT`, `PGUSER`, `PGPASSWORD`, `PGDATABASE`
+5. Go to "Settings" → "Source"
+6. Change Docker image to: `postgis/postgis:16-3.4`
+7. Click "Deploy"
+8. Wait for redeployment
+9. Go to "Variables" tab
+10. **Copy the `DATABASE_URL`** (you'll need it later)
 
-### 1.3 Enable PostGIS Extension
+Now PostGIS will be available!
 
-1. In Railway, click on your PostgreSQL service
-2. Click "Connect" tab and copy the "Connect via psql" command
-3. Open your terminal and run that command to connect
-4. Once connected, run:
-   ```sql
-   CREATE EXTENSION IF NOT EXISTS postgis;
-   \q
-   ```
+**✅ Database Ready with PostGIS!**
 
-**✅ Database Ready!**
+#### **Option C: Supabase (Free with PostGIS, Easiest)** 🚀
+
+Supabase is the easiest option with generous free tier:
+
+1. Go to https://supabase.com
+2. Click "Start your project"
+3. Sign in with GitHub
+4. Click "New Project"
+5. Fill in:
+   - **Name**: car-calendar
+   - **Database Password**: (generate a strong one, save it!)
+   - **Region**: Choose closest to you
+6. Click "Create new project" (takes ~2 minutes)
+7. Once ready, click "Settings" → "Database"
+8. Under "Connection string", select "URI" tab
+9. Copy the connection string
+10. **PostGIS is already enabled!** ✅
+
+**Save the connection string for Step 2!**
+
+---
+
+**💡 My Recommendation: Use Supabase (Option C)**
+- Free forever tier (500MB database - enough for 5,000+ events)
+- PostGIS pre-installed
+- Easiest setup (2 minutes)
+- Great dashboard and SQL editor
+- Can add authentication later if needed
 
 ---
 
@@ -455,11 +510,12 @@ Before going live:
 
 **What You've Deployed:**
 
-1. **PostgreSQL Database** (Railway)
+1. **PostgreSQL Database** (Supabase)
    - PostGIS enabled for geospatial queries
    - Can handle 5,000+ events easily
+   - Free forever (500MB)
 
-2. **Backend API** (Railway)
+2. **Backend API** (Railway or Render)
    - Node.js + Express
    - JWT authentication
    - Image upload to R2
@@ -514,8 +570,56 @@ Before going live:
 **Cloudflare R2:**
 - Docs: https://developers.cloudflare.com/r2
 
+**Supabase:**
+- Docs: https://supabase.com/docs
+- Discord: https://discord.supabase.com
+
 **Issues with this app:**
 - GitHub: https://github.com/hippolippo/Car-Show-Calendar/issues
+
+---
+
+## 💰 Appendix: 100% Free Deployment Option
+
+Want to keep it completely free? Use **Render.com** instead of Railway for the backend.
+
+**Trade-off**: Backend "sleeps" after 15 minutes of inactivity (takes 30-60 seconds to wake up on first request)
+
+### Using Render Free Tier
+
+1. Go to https://render.com
+2. Sign in with GitHub
+3. Click "New +" → "Web Service"
+4. Connect repository: `hippolippo/Car-Show-Calendar`
+5. Configure:
+   - **Name**: car-calendar-backend
+   - **Root Directory**: `backend`
+   - **Environment**: Node
+   - **Build Command**: `npm install`
+   - **Start Command**: `node src/index.js`
+   - **Plan**: Free
+6. Add environment variables (same as Railway in Step 2.3)
+7. Click "Create Web Service"
+
+**Render will:**
+- Auto-deploy on push ✅
+- Provide HTTPS ✅
+- Sleep after 15min inactivity ⚠️
+- Wake up automatically when accessed
+- Give you a `.onrender.com` URL
+
+**Total Cost with Render:**
+- Backend: Free (with sleep)
+- Database: Free (Supabase)
+- Storage: Free (R2 - 10GB)
+- Frontend: Free (Vercel)
+- **Total: $0/month** 🎉
+
+**When to use:**
+- Learning projects
+- Portfolio projects
+- Low-traffic apps
+- Don't mind 30-60s initial load time
 
 ---
 
