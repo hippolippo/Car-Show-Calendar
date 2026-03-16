@@ -93,11 +93,17 @@ export default function CreateEventForm() {
       
       const coordinates = await geocodeAddress(formData.location);
       
+      // Round coordinates to 6 decimal places (about 10cm precision)
+      const roundedCoordinates = {
+        lat: parseFloat(coordinates.lat.toFixed(6)),
+        lon: parseFloat(coordinates.lon.toFixed(6))
+      };
+      
       setFormData(prev => ({
         ...prev,
         location: {
           ...prev.location,
-          coordinates
+          coordinates: roundedCoordinates
         }
       }));
       
