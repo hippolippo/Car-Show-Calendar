@@ -123,28 +123,36 @@ export class StorageService {
    * @private
    */
   static async _saveR2(fileBuffer, filename, mimetype) {
-    // TODO: Implement R2 upload
-    // const { S3Client, PutObjectCommand } = require('@aws-sdk/client-s3');
-    // const client = new S3Client({
-    //   region: 'auto',
-    //   endpoint: process.env.R2_ENDPOINT,
-    //   credentials: {
-    //     accessKeyId: process.env.R2_ACCESS_KEY_ID,
-    //     secretAccessKey: process.env.R2_SECRET_ACCESS_KEY
-    //   }
-    // });
-    // 
-    // const command = new PutObjectCommand({
-    //   Bucket: process.env.R2_BUCKET_NAME,
-    //   Key: `fliers/${Date.now()}-${filename}`,
-    //   Body: fileBuffer,
-    //   ContentType: mimetype
-    // });
-    // 
-    // await client.send(command);
-    // return `${process.env.R2_PUBLIC_URL}/fliers/${filename}`;
+    const { S3Client, PutObjectCommand } = await import('@aws-sdk/client-s3');
     
-    throw new Error('R2 storage not yet implemented. Set STORAGE_TYPE=local');
+    // Generate unique filename
+    const timestamp = Date.now();
+    const ext = path.extname(filename);
+    const basename = path.basename(filename, ext);
+    const safeBasename = basename.replace(/[^a-zA-Z0-9-_]/g, '_');
+    const uniqueFilename = `${timestamp}-${safeBasename}${ext}`;
+    const key = `fliers/${uniqueFilename}`;
+    
+    const client = new S3Client({
+      region: 'auto',
+      endpoint: process.env.R2_ENDPOINT,
+      credentials: {
+        accessKeyId: process.env.R2_ACCESS_KEY_ID,
+        secretAccessKey: process.env.R2_SECRET_ACCESS_KEY
+      }
+    });
+    
+    const command = new PutObjectCommand({
+      Bucket: process.env.R2_BUCKET_NAME,
+      Key: key,
+      Body: fileBuffer,
+      ContentType: mimetype
+    });
+    
+    await client.send(command);
+    
+    // Return public URL
+    return `${process.env.R2_PUBLIC_URL}/${key}`;
   }
 
   /**
@@ -152,8 +160,33 @@ export class StorageService {
    * @private
    */
   static async _deleteR2(fileUrl) {
-    // TODO: Implement R2 delete
-    throw new Error('R2 storage not yet implemented');
+    const { S3Client, DeleteObjectCommand } = await import('@aws-sdk/client-s3');
+    
+    try {
+      // Extract key from URL
+      const url = new URL(fileUrl);
+      const key = url.pathname.substring(1); // Remove leading slash
+      
+      const client = new S3Client({
+        region: 'auto',
+        endpoint: process.env.R2_ENDPOINT,
+        credentials: {
+          accessKeyId: process.env.R2_ACCESS_KEY_ID,
+          secretAccessKey: process.env.R2_SECRET_ACCESS_KEY
+        }
+      });
+      
+      const command = new DeleteObjectCommand({
+        Bucket: process.env.R2_BUCKET_NAME,
+        Key: key
+      });
+      
+      await client.send(command);
+      return true;
+    } catch (error) {
+      console.error('Error deleting R2 file:', error);
+      return false;
+    }
   }
 }
 
