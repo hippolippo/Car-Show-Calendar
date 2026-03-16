@@ -71,7 +71,18 @@ export async function uploadImage(req, res, next) {
         publicUrl: process.env.R2_PUBLIC_URL
       }
     });
-    next(error);
+    
+    // Return detailed error in development/for debugging
+    return res.status(500).json({
+      error: {
+        code: 'UPLOAD_FAILED',
+        message: error.message,
+        details: {
+          name: error.name,
+          code: error.code
+        }
+      }
+    });
   }
 }
 
