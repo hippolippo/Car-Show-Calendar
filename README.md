@@ -263,10 +263,13 @@ Test your deployed backend to verify everything works:
 
 ```bash
 # Test deployed API (runs all 9 tests, cleans up after itself)
-node test-deployment.js https://your-backend-url.railway.app
+node scripts/testing/test-deployment.js https://your-backend-url.railway.app
 
-# Expected: All 9 tests pass ✅
-# Tests: Health, Auth, Events, RSVP, Database triggers
+# Test image upload functionality
+node scripts/testing/test-upload.js https://your-backend-url.railway.app ./path/to/image.jpg
+
+# Expected: All tests pass ✅
+# Tests: Health, Auth, Events, RSVP, Image Upload, Database triggers
 ```
 
 ---
@@ -277,15 +280,25 @@ node test-deployment.js https://your-backend-url.railway.app
 - Node.js v22 (ESM modules)
 - Express v5.x (REST API)
 - PostgreSQL 16 + PostGIS (Geospatial database)
-- JWT authentication (httpOnly cookies)
+- JWT authentication (httpOnly cookies, SameSite=None)
+- Cloudflare R2 (S3-compatible object storage)
+- AWS SDK v3 (R2 client)
+- Multer (multipart/form-data handling)
 - Vitest + Supertest (Testing)
 
 **Frontend**:
 - React (latest stable)
 - Vite v7.3.1 (Build tool)
 - React Router (Routing)
-- Zustand (State management)
+- Zustand (State management ~1KB)
+- Native fetch API (HTTP client)
 - Vitest + React Testing Library + Playwright (Testing)
+
+**Infrastructure**:
+- Vercel (Frontend hosting - free tier)
+- Railway (Backend hosting - ~$5/month)
+- Supabase (PostgreSQL + PostGIS - free tier)
+- Cloudflare R2 (Image storage - free tier)
 
 **Shared**:
 - geolib v3.3.4 (Distance calculations)
@@ -349,28 +362,34 @@ AI follows this cycle for all implementations:
 ## ✅ MVP Features Implemented
 
 ### Core Functionality
-- [x] **User Authentication** - Register, login, JWT-based auth with httpOnly cookies
+- [x] **User Authentication** - Register, login, JWT-based auth with httpOnly cookies and cross-origin support
 - [x] **Event Creation** - Create events with name, description, date, location, and poster images
+- [x] **Event Editing** - Update event details (name, description, date) with timezone preservation
 - [x] **Event Discovery** - Browse all events with location-based filtering
 - [x] **Location Search** - Find events by ZIP code or GPS coordinates
 - [x] **Distance Calculation** - PostGIS-powered geospatial queries
 - [x] **Sort & Filter** - Sort by distance, date, or popularity (RSVP count)
 - [x] **RSVP System** - Attend/unattend events with accurate count tracking
-- [x] **Image Upload** - Upload event posters/fliers (5MB max, local storage)
+- [x] **Image Upload** - Upload event posters/fliers (5MB max) to Cloudflare R2
 - [x] **Mobile Responsive** - Touch-friendly UI that works on phones and tablets
 - [x] **Google Maps Integration** - Clickable address links that open Google Maps
+- [x] **Universal Logout** - Logout works even with expired/invalid tokens (prevents stuck login states)
 
 ### Technical Implementation
 - [x] Database schema with 7 tables and PostGIS extension
 - [x] RESTful API with proper error handling and validation
-- [x] JWT authentication with secure cookie storage
-- [x] File upload system with storage abstraction layer (easy R2 migration)
-- [x] Dynamic API URL detection (works on localhost and local network)
+- [x] JWT authentication with secure httpOnly cookies (SameSite=None for cross-origin)
+- [x] **Cloudflare R2 integration** - Production image storage with public URLs
+- [x] Cross-origin authentication (frontend on Vercel, backend on Railway)
+- [x] Timezone-aware datetime handling (preserves user's local time)
+- [x] Coordinate precision validation (6 decimal places)
+- [x] SPA routing with Vercel rewrites (direct URL access works)
 - [x] Geolocation support (browser GPS + ZIP code geocoding)
 - [x] Event cards with 3:4 aspect ratio image crops
 - [x] Full uncropped images on event detail pages
 - [x] Database triggers for RSVP count accuracy
-- [x] CORS configuration for mobile testing
+- [x] Production CORS configuration
+- [x] Unique filename generation (timestamp + random string)
 
 ### Spec-Driven Development Process (Using SpecKit)
 - [x] Comprehensive feature specification written in SpecKit
@@ -405,32 +424,33 @@ AI follows this cycle for all implementations:
 **Status**: Core MVP Complete (100% of essential features)
 
 The MVP includes:
-1. ✅ **User Registration & Login** - Secure authentication system
-2. ✅ **Event Creation & Management** - Create events with images and location
+1. ✅ **User Registration & Login** - Secure authentication with cross-origin cookie support
+2. ✅ **Event Creation & Management** - Create and edit events with images and location
 3. ✅ **Event Discovery** - Browse and search nearby events
 4. ✅ **Location-Based Search** - ZIP code and GPS coordinate filtering
 5. ✅ **Distance Calculation** - Accurate geospatial distance queries
 6. ✅ **Sort & Filter** - Sort by distance, date, or popularity
 7. ✅ **RSVP Functionality** - Attend/unattend with real-time count updates
-8. ✅ **Image Upload** - Event poster/flier uploads with preview
+8. ✅ **Image Upload** - Cloudflare R2 integration for production storage
 9. ✅ **Mobile Responsive** - Works on phones, tablets, and desktop
 10. ✅ **Maps Integration** - Google Maps links for event addresses
+11. ✅ **Production Deployment** - Live on Vercel + Railway + Supabase + R2
 
 ---
 
 ## 🔮 Future Enhancements
 
-Features planned but not yet implemented:
+Features that could be added in future versions:
 - [ ] **Follow Organizers** - Get notified when organizers create new events
-- [ ] **Event Updates & Cancellations** - Allow organizers to edit/cancel events
 - [ ] **Comments & Discussions** - Let users discuss events
 - [ ] **Image Gallery** - Multiple images per event
 - [ ] **Event Sharing** - Share events on social media
 - [ ] **Push Notifications** - Real-time event reminders
 - [ ] **Organizer Reputation** - Star ratings and follower counts
-- [ ] **Cloudflare R2 Migration** - Move from local storage to cloud storage
 - [ ] **Advanced Filtering** - Filter by car type, date range, etc.
 - [ ] **Map View** - View events on an interactive map
+- [ ] **Event Categories** - Tag events (classic cars, muscle cars, imports, etc.)
+- [ ] **User Profiles** - Public profile pages with attended events
 
 ## 🤝 Contributing
 
