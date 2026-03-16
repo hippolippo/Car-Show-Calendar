@@ -125,12 +125,13 @@ export class StorageService {
   static async _saveR2(fileBuffer, filename, mimetype) {
     const { S3Client, PutObjectCommand } = await import('@aws-sdk/client-s3');
     
-    // Generate unique filename
+    // Generate unique filename with timestamp + random string
     const timestamp = Date.now();
+    const randomStr = Math.random().toString(36).substring(2, 8); // 6 random chars
     const ext = path.extname(filename);
     const basename = path.basename(filename, ext);
     const safeBasename = basename.replace(/[^a-zA-Z0-9-_]/g, '_');
-    const uniqueFilename = `${timestamp}-${safeBasename}${ext}`;
+    const uniqueFilename = `${timestamp}-${randomStr}-${safeBasename}${ext}`;
     const key = `fliers/${uniqueFilename}`;
     
     const client = new S3Client({

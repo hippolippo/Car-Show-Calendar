@@ -201,7 +201,25 @@ export default function CreateEventForm() {
         }
       }
 
-      const event = await createEvent(formData);
+      // Convert datetime-local to proper ISO string with timezone
+      // datetime-local gives us "2026-03-15T15:00" (no timezone)
+      // We need to preserve the local time the user entered
+      const localDateTime = formData.eventDate; // e.g., "2026-03-15T15:00"
+      
+      // Create a Date object treating the input as local time
+      const [datePart, timePart] = localDateTime.split('T');
+      const [year, month, day] = datePart.split('-').map(Number);
+      const [hour, minute] = timePart.split(':').map(Number);
+      
+      // Create date in local timezone
+      const localDate = new Date(year, month - 1, day, hour, minute);
+      
+      const eventDataToSubmit = {
+        ...formData,
+        eventDate: localDate.toISOString()
+      };
+
+      const event = await createEvent(eventDataToSubmit);
       // Navigate to event detail page (will implement this route later)
       navigate(`/events/${event.id}`);
     } catch (err) {
