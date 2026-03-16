@@ -731,7 +731,59 @@ Want to keep it completely free? Use **Render.com** instead of Railway for the b
 
 ---
 
-## 🔧 Known Issues & Fixes
+## 🔧 Troubleshooting
+
+### Frontend Shows 503 Error or Can't Connect to Backend
+
+**Symptom:** Frontend loads but shows errors when trying to upload images, create events, or login.
+
+**Cause:** Missing `VITE_API_URL` environment variable in Vercel.
+
+**Solution:**
+1. Go to Vercel dashboard → Your project → **Settings** → **Environment Variables**
+2. Add:
+   - Name: `VITE_API_URL`
+   - Value: `https://your-backend-url.railway.app/api/v1`
+   - Environments: Production, Preview, Development (all)
+3. **Save** and **Redeploy** (Deployments tab → ⋯ → Redeploy)
+4. Wait 1-2 minutes for deployment to complete
+
+**Verify it worked:**
+- Open browser console (F12)
+- Check Network tab when making requests
+- Requests should go to `https://your-backend-url.railway.app/api/v1/...`
+- NOT to `http://vercel-url:3000/api/v1/...`
+
+### Image Upload Returns 400/500 Error
+
+**Symptom:** Image upload fails in frontend or test script.
+
+**Possible causes:**
+1. **R2_ENDPOINT has bucket name** - Should be `https://[account-id].r2.cloudflarestorage.com` (no `/bucket-name`)
+2. **Missing R2 credentials** - Check all R2_* variables are set in Railway
+3. **Invalid R2 credentials** - Regenerate API token in Cloudflare
+
+**Debug:**
+```bash
+# Test R2 connection
+curl https://your-backend-url.railway.app/api/v1/upload/test-r2
+
+# Check R2 config
+curl https://your-backend-url.railway.app/api/v1/upload/config
+```
+
+### CORS Errors in Browser Console
+
+**Symptom:** Errors like "blocked by CORS policy" in browser console.
+
+**Solution:**
+1. Go to Railway → Backend service → **Variables**
+2. Set `CORS_ORIGIN` to your **exact** Vercel URL:
+   ```
+   CORS_ORIGIN=https://your-app.vercel.app
+   ```
+3. No trailing slash, must match exactly
+4. Wait for Railway to redeploy
 
 ### Logout Works Without Authentication
 
@@ -745,7 +797,6 @@ Want to keep it completely free? Use **Render.com** instead of Railway for the b
 **Implementation:**
 - Backend: Logout endpoint doesn't require authentication
 - Frontend: Always clears local state (even if API fails)
-- See `LOGOUT-FIX.md` for technical details
 
 ---
 
