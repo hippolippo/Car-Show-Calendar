@@ -12,7 +12,13 @@ export async function login(email, password) {
 }
 
 export async function logout() {
-  await api.post('/auth/logout');
+  try {
+    await api.post('/auth/logout');
+  } catch (error) {
+    // Always succeed logout on frontend even if backend request fails
+    // This ensures user can always clear their local auth state
+    console.warn('Logout request failed, but clearing local state anyway:', error);
+  }
 }
 
 export async function getCurrentUser() {

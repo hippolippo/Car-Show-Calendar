@@ -9,9 +9,12 @@ export default function Header() {
     try {
       const authService = await import('../../services/authService.js');
       await authService.default.logout();
-      logout();
     } catch (error) {
-      console.error('Logout failed:', error);
+      console.error('Logout API call failed:', error);
+    } finally {
+      // Always clear local auth state, even if API call failed
+      // This ensures user can logout even with invalid/expired tokens
+      logout();
     }
   };
   

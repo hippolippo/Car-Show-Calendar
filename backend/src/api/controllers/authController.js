@@ -100,10 +100,13 @@ export async function login(req, res, next) {
 /**
  * Logout user
  * POST /api/v1/auth/logout
+ * 
+ * Note: No authentication required - allows logout even with invalid/expired tokens
+ * This prevents the frontend from being stuck in a "logged in but can't logout" state
  */
 export async function logout(req, res, next) {
   try {
-    // Clear JWT cookie
+    // Clear JWT cookie (works even if cookie doesn't exist or token is invalid)
     res.clearCookie(jwtConfig.cookieName, jwtConfig.cookieOptions);
 
     res.status(200).json({

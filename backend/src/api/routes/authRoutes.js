@@ -8,9 +8,9 @@ const router = express.Router();
 // Public routes
 router.post('/register', register);
 router.post('/login', login);
+router.post('/logout', logout); // No auth required - just clears cookie
 
 // Protected routes
-router.post('/logout', authenticate, logout);
 router.get('/me', authenticate, me);
 
 export default router;
