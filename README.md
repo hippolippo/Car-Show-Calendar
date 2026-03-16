@@ -1,30 +1,50 @@
 # 🚗 CarCalendar - Car Show Discovery Platform
 
+Discover car shows and meets in your area. Create events, RSVP, and connect with the car community.
+
+---
+
+## 🌟 Try It Live!
+
+### **👉 [car-show-calendar-one.vercel.app](https://car-show-calendar-one.vercel.app) 👈**
+
+**The app is fully deployed and ready to use!**
+
+✨ **Features:**
+- 🔐 Create an account (no email verification needed)
+- 📅 Browse upcoming car shows and meets
+- 📍 Find events near you by location
+- 🎟️ RSVP to events you want to attend
+- 🖼️ Create your own events with custom fliers
+- 📱 Works on desktop, tablet, and mobile
+
+**No installation required** - just visit the link and start exploring!
+
+---
+
+## 📚 About This Project
+
 > **A Learning Project**: This application was built as a hands-on exercise in **Spec-Driven Development (SDD)** and **AI-Assisted Software Engineering**. I used [SpecKit](https://speckit.dev) to design comprehensive specifications, then collaborated with AI agents to implement the features.
 
 **Status**: MVP Core Features Complete ✅  
 **Methodology**: Spec-Driven Development (SpecKit) + AI-Assisted Coding  
-**Tools**: SpecKit for specifications, OpenCode/Claude for implementation  
+**Tools**: SpecKit for specifications, OpenCode/Claude for implementation
 
-Discover car shows and meets in your area. Create events, RSVP, follow organizers, and connect with the car community.
+## 🤝 For Developers
 
----
-
-## 🌐 Using CarCalendar
-
-### For Users
-**Live Application**: [car-show-calendar-production.up.railway.app](https://car-show-calendar-production.up.railway.app)
-
-The app is currently deployed and available for testing. Feel free to create an account, browse events, and try out the features!
-
-### For Developers
 Interested in contributing or learning from the code? Here are your options:
 
-**Option 1: Contribute** (Recommended)  
+**Option 1: Use the Live App** (Start Here!)  
+Visit **[car-show-calendar-one.vercel.app](https://car-show-calendar-one.vercel.app)** to try out all features before diving into the code.
+
+**Option 2: Contribute** (Recommended)  
 Submit a pull request to improve the main application. See the [API contracts](./specs/001-car-show-discovery/contracts/api-contracts.md) and [specifications](./specs/001-car-show-discovery/spec.md) to understand the system.
 
-**Option 2: Fork & Deploy Your Own**  
-If you want to experiment with major changes or use this as a base for your own project, see the [Deployment Guide](./DEPLOYMENT.md). Note: This is a learning project, so deploying your own instance is mainly useful for educational purposes or significant modifications.
+**Option 3: Run Locally**  
+Want to experiment? See the [Quick Start](#-quick-start) section below for local development setup.
+
+**Option 4: Fork & Deploy Your Own**  
+If you want to deploy your own instance with major modifications, see the [Deployment Guide](./DEPLOYMENT.md).
 
 ---
 
@@ -197,9 +217,15 @@ CarCalendar/
 
 ## 🚀 Deployment
 
-**Current Deployment**: The app is live at [car-show-calendar-production.up.railway.app](https://car-show-calendar-production.up.railway.app)
+**Live Application**: **[car-show-calendar-one.vercel.app](https://car-show-calendar-one.vercel.app)** 🎉
 
-**For Learning Purposes**: If you want to deploy your own instance to experiment with the infrastructure or make significant modifications, see the **[Deployment Guide](./DEPLOYMENT.md)**. 
+The app is fully deployed and available to use:
+- **Frontend**: Vercel (free tier)
+- **Backend**: Railway (~$5/month)
+- **Database**: Supabase PostgreSQL + PostGIS (free tier)
+- **Storage**: Cloudflare R2 (free tier)
+
+**Want to Deploy Your Own?** If you want to deploy your own instance to experiment with the infrastructure or make significant modifications, see the **[Deployment Guide](./DEPLOYMENT.md)**. 
 
 The deployment guide includes:
 - Step-by-step setup instructions
@@ -207,7 +233,7 @@ The deployment guide includes:
 - Database migration procedures
 - Testing and validation steps
 
-**Note**: For general contributions or feature requests, please submit a pull request rather than deploying your own instance.
+**Note**: For general contributions or feature requests, please submit a pull request to the main app rather than deploying your own instance.
 
 ---
 
