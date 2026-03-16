@@ -4,9 +4,12 @@
 
 **Status**: MVP Core Features Complete ✅  
 **Methodology**: Spec-Driven Development (SpecKit) + AI-Assisted Coding  
-**Tools**: SpecKit for specifications, OpenCode/Claude for implementation
+**Tools**: SpecKit for specifications, OpenCode/Claude for implementation  
+**Live Demo**: [Deployed on Railway](https://car-show-calendar-production.up.railway.app)
 
 Discover car shows and meets in your area. Create events, RSVP, follow organizers, and connect with the car community.
+
+📖 **[Deployment Guide](./DEPLOYMENT.md)** - Deploy your own instance for free (or ~$5/month)
 
 ---
 
@@ -177,7 +180,27 @@ CarCalendar/
 
 ---
 
+## 🚀 Deployment
+
+Want to deploy your own instance? See the **[Deployment Guide](./DEPLOYMENT.md)** for step-by-step instructions.
+
+**Options:**
+- 💰 **~$5/month** - Railway (backend) + Supabase (database, free) + Vercel (frontend, free) + R2 (storage, free)
+- 💸 **100% Free** - Render.com (backend, sleeps) + Supabase (database) + Vercel (frontend) + R2 (storage)
+
+**Live Demo**: [https://car-show-calendar-production.up.railway.app](https://car-show-calendar-production.up.railway.app)
+
+**Test Deployment**:
+```bash
+# Test any deployed backend
+node test-deployment.js https://your-backend-url.railway.app
+```
+
+---
+
 ## 🧪 Testing
+
+### Local Development Tests
 
 ```bash
 # Backend unit tests
@@ -193,6 +216,18 @@ npm test
 
 # E2E tests
 npm run test:e2e
+```
+
+### Deployment Tests
+
+Test your deployed backend to verify everything works:
+
+```bash
+# Test deployed API (runs all 9 tests, cleans up after itself)
+node test-deployment.js https://your-backend-url.railway.app
+
+# Expected: All 9 tests pass ✅
+# Tests: Health, Auth, Events, RSVP, Database triggers
 ```
 
 ---

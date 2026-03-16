@@ -1,11 +1,12 @@
 #!/usr/bin/env node
 /**
- * CarCalendar Deployment Test Script
+ * CarCalendar Deployment Test Script v2
  * 
- * Tests the deployed backend API and cleans up after itself.
+ * Tests the deployed backend API with proper cookie handling.
+ * Cleans up after itself.
  * 
- * Usage: node test-deployment.js [API_URL]
- * Example: node test-deployment.js https://car-show-calendar-production.up.railway.app
+ * Usage: node test-deployment-v2.js [API_URL]
+ * Example: node test-deployment-v2.js https://car-show-calendar-production.up.railway.app
  */
 
 const API_URL = process.argv[2] || 'https://car-show-calendar-production.up.railway.app';
@@ -22,7 +23,7 @@ const testUser = {
 const testEvent = {
   name: `Test Event ${timestamp}`,
   description: 'This is a test event that will be automatically cleaned up',
-  eventDate: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000).toISOString(), // 7 days from now
+  eventDate: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000).toISOString(),
   location: {
     address: '1600 Pennsylvania Avenue NW',
     city: 'Washington',
@@ -37,7 +38,7 @@ const testEvent = {
 };
 
 // State
-let authToken = null;
+let cookies = '';
 let eventId = null;
 let userId = null;
 
@@ -61,13 +62,15 @@ async function makeRequest(method, endpoint, data = null, requiresAuth = false) 
     'Content-Type': 'application/json'
   };
 
-  if (requiresAuth && authToken) {
-    headers['Authorization'] = `Bearer ${authToken}`;
+  // Send cookies if we have them
+  if (requiresAuth && cookies) {
+    headers['Cookie'] = cookies;
   }
 
   const options = {
     method,
-    headers
+    headers,
+    credentials: 'include'
   };
 
   if (data) {
@@ -76,13 +79,12 @@ async function makeRequest(method, endpoint, data = null, requiresAuth = false) 
 
   const response = await fetch(url, options);
   
-  // Extract cookies if present
-  const setCookie = response.headers.get('set-cookie');
-  if (setCookie && setCookie.includes('token=')) {
-    const match = setCookie.match(/token=([^;]+)/);
-    if (match) {
-      authToken = match[1];
-    }
+  // Store cookies from response
+  const setCookieHeader = response.headers.get('set-cookie');
+  if (setCookieHeader) {
+    // Parse and store cookies
+    const cookieParts = setCookieHeader.split(',').map(c => c.split(';')[0].trim());
+    cookies = cookieParts.join('; ');
   }
 
   const contentType = response.headers.get('content-type');
@@ -142,11 +144,10 @@ async function testLogin() {
       password: testUser.password
     });
     
-    if (response.token) {
-      authToken = response.token;
-    }
-    
-    log('✅', 'Login successful', { token: authToken ? 'received' : 'in cookie' });
+    log('✅', 'Login successful', { 
+      hasCookies: cookies.length > 0,
+      cookiePreview: cookies.substring(0, 50) + '...'
+    });
     return true;
   } catch (error) {
     logError('Login failed', error);
@@ -158,8 +159,9 @@ async function testCreateEvent() {
   log('📅', 'Testing event creation...');
   try {
     const response = await makeRequest('POST', '/events', testEvent, true);
-    eventId = response.event?.id;
-    log('✅', 'Event created successfully', { eventId, name: testEvent.name });
+    // Response is the event object directly, not wrapped
+    eventId = response.id || response.event?.id;
+    log('✅', 'Event created successfully', { eventId, name: response.name || testEvent.name });
     return true;
   } catch (error) {
     logError('Event creation failed', error);
@@ -171,8 +173,10 @@ async function testGetEvents() {
   log('📋', 'Testing get events list...');
   try {
     const response = await makeRequest('GET', '/events?lat=38.8977&lon=-77.0365&radius=50');
-    const eventCount = response.events?.length || 0;
-    const foundTestEvent = response.events?.some(e => e.id === eventId);
+    // Response might be { events: [...] } or just [...]
+    const events = response.events || response;
+    const eventCount = Array.isArray(events) ? events.length : 0;
+    const foundTestEvent = Array.isArray(events) && events.some(e => e.id === eventId);
     log('✅', 'Get events successful', { 
       totalEvents: eventCount, 
       foundTestEvent 
@@ -188,10 +192,11 @@ async function testGetEventById() {
   log('🔍', 'Testing get event by ID...');
   try {
     const response = await makeRequest('GET', `/events/${eventId}`);
+    const event = response.event || response;
     log('✅', 'Get event by ID successful', { 
       eventId, 
-      name: response.event?.name,
-      rsvpCount: response.event?.rsvpCount
+      name: event.name,
+      rsvpCount: event.rsvpCount
     });
     return true;
   } catch (error) {
@@ -203,10 +208,11 @@ async function testGetEventById() {
 async function testRSVP() {
   log('✋', 'Testing RSVP...');
   try {
-    const response = await makeRequest('POST', `/events/${eventId}/rsvp`, null, true);
+    const response = await makeRequest('POST', `/rsvps`, { eventId }, true);
+    const rsvp = response.rsvp || response;
     log('✅', 'RSVP successful', { 
       eventId,
-      status: response.rsvp?.status 
+      status: rsvp.status 
     });
     return true;
   } catch (error) {
@@ -219,7 +225,8 @@ async function testGetEventWithRSVP() {
   log('👥', 'Testing get event with RSVP count...');
   try {
     const response = await makeRequest('GET', `/events/${eventId}`);
-    const rsvpCount = response.event?.rsvpCount || 0;
+    const event = response.event || response;
+    const rsvpCount = event.rsvpCount || 0;
     log('✅', 'Event has RSVP count', { 
       eventId,
       rsvpCount,
@@ -235,7 +242,7 @@ async function testGetEventWithRSVP() {
 async function testUnRSVP() {
   log('🚫', 'Testing un-RSVP...');
   try {
-    await makeRequest('DELETE', `/events/${eventId}/rsvp`, null, true);
+    await makeRequest('DELETE', `/rsvps/${eventId}`, null, true);
     log('✅', 'Un-RSVP successful', { eventId });
     return true;
   } catch (error) {
@@ -274,8 +281,6 @@ async function cleanupUser() {
   
   log('🧹', 'Cleaning up test user...');
   try {
-    // Note: This assumes a DELETE /users/:id endpoint exists
-    // If not, the user will remain but with a unique timestamped email
     await makeRequest('DELETE', `/users/${userId}`, null, true);
     log('✅', 'User deleted successfully', { userId });
     return true;
@@ -294,8 +299,8 @@ async function cleanupUser() {
 
 // Main test runner
 async function runTests() {
-  console.log('\n🚀 CarCalendar Deployment Test Suite');
-  console.log('=====================================');
+  console.log('\n🚀 CarCalendar Deployment Test Suite v2');
+  console.log('==========================================');
   console.log(`Testing API: ${API_URL}\n`);
 
   const results = {
@@ -331,19 +336,19 @@ async function runTests() {
       results.tests.push({ name: test.name, passed: false });
       results.failed++;
     }
-    console.log(''); // Empty line between tests
+    console.log('');
   }
 
   // Cleanup
   console.log('🧹 Cleaning up test data...');
-  console.log('=====================================\n');
+  console.log('==========================================\n');
   
   await cleanupEvent();
   await cleanupUser();
 
   // Summary
   console.log('\n📊 Test Summary');
-  console.log('=====================================');
+  console.log('==========================================');
   console.log(`Total tests: ${results.passed + results.failed}`);
   console.log(`✅ Passed: ${results.passed}`);
   console.log(`❌ Failed: ${results.failed}`);
