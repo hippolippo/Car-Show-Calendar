@@ -248,26 +248,37 @@ railway run node scripts/migrate.js
 
 ### 3.3 Get R2 Credentials
 
+**Create an API Token (not an Account token):**
+
 1. In R2 dashboard, click "Manage R2 API Tokens"
 2. Click "Create API Token"
 3. Set permissions:
    - **Token name**: `car-calendar-backend`
-   - **Permissions**: Object Read & Write
-   - **Specify bucket**: `car-calendar-images`
+   - **Permissions**: **Object Read & Write** (not Admin)
+   - **TTL**: Forever (or set expiration if you prefer)
+   - **Specify bucket**: Select `car-calendar-images` (recommended for security)
 4. Click "Create API Token"
-5. **Copy and save**:
-   - Access Key ID
-   - Secret Access Key
-   - Endpoint URL (looks like: `https://abcd1234.r2.cloudflarestorage.com`)
+5. **Copy and save these values** (you won't see them again!):
+   - **Access Key ID** (looks like: `abc123def456...`)
+   - **Secret Access Key** (looks like: `xyz789...`)
+   - **Endpoint URL** (looks like: `https://[account-id].r2.cloudflarestorage.com`)
+
+⚠️ **Important**: Use an **API Token**, not an Account API Token. API Tokens are scoped to R2 only and more secure.
 
 ### 3.4 Enable Public Access
 
+**Use R2.dev Public URL (Free, Recommended for MVP):**
+
 1. Go to your R2 bucket: `car-calendar-images`
-2. Click "Settings"
-3. Under "Public Access", click "Allow Access"
-4. Click "Connect Domain" (optional - or use R2.dev subdomain)
-5. Cloudflare will give you a public URL like: `https://pub-xxxxx.r2.dev`
-6. **Copy this URL** - this is your public image URL
+2. Click the **"Settings"** tab
+3. Scroll down to **"Public Access"**
+4. Click **"Allow Access"** button
+5. Select **"R2.dev subdomain"** (the free option)
+6. Click **"Allow Access"** to confirm
+7. Cloudflare will show you a URL like: `https://pub-xxxxx.r2.dev`
+8. **Copy this URL** - this is your `R2_PUBLIC_URL`
+
+⚠️ **Note**: Cloudflare will warn that R2.dev "is not for production use". This is fine for learning/MVP projects. For production apps with real users, you'd use a custom domain (requires Cloudflare Workers, $5/month).
 
 ### 3.5 Update Backend Environment Variables
 
@@ -281,7 +292,7 @@ railway run node scripts/migrate.js
 STORAGE_TYPE=r2
 
 # R2 Configuration
-R2_ACCOUNT_ID=your-account-id
+R2_ACCOUNT_ID=your-account-id-here
 R2_ACCESS_KEY_ID=your-access-key-id-from-step-3.3
 R2_SECRET_ACCESS_KEY=your-secret-access-key-from-step-3.3
 R2_BUCKET_NAME=car-calendar-images
@@ -291,6 +302,15 @@ R2_PUBLIC_URL=https://pub-xxxxx.r2.dev
 # Update this too:
 PUBLIC_URL_BASE=https://your-backend-url.railway.app
 ```
+
+**Finding Your R2 Account ID:**
+
+Your R2 Account ID is in the R2 endpoint URL or dashboard:
+- **From URL**: When you're in R2 dashboard, look at the browser URL: `https://dash.cloudflare.com/[ACCOUNT_ID]/r2/overview`
+- **From Endpoint**: It's in your endpoint URL: `https://[account-id].r2.cloudflarestorage.com`
+- **From Dashboard**: Sometimes shown in the R2 Overview page sidebar
+
+Example Account ID: `a1b2c3d4e5f6g7h8i9j0k1l2m3n4o5p6` (32 characters, alphanumeric)
 
 5. Click "Deploy" to restart
 
@@ -359,18 +379,55 @@ Replace `your-backend-url.railway.app` with your actual Railway backend URL from
 2. You'll get a URL like: `https://car-show-calendar.vercel.app`
 3. **Copy this URL**
 
-### 4.6 Update Backend CORS
+### 4.6 Update Backend CORS (CRITICAL!)
+
+**⚠️ This step is REQUIRED or your frontend won't be able to access the backend!**
 
 1. Go back to Railway
 2. Click on your backend service
 3. Go to "Variables"
-4. Update `CORS_ORIGIN`:
+4. Find `CORS_ORIGIN` and update it with your **exact Vercel URL**:
    ```bash
    CORS_ORIGIN=https://your-frontend-url.vercel.app
    ```
-5. Click "Deploy" to restart
+   
+   **Important**: 
+   - Copy the URL exactly from Vercel (no trailing slash)
+   - Use `https://` not `http://`
+   - Example: `https://car-show-calendar-one.vercel.app`
+
+5. **Optional**: Support both production and local development:
+   ```bash
+   CORS_ORIGIN=https://your-frontend-url.vercel.app,http://localhost:5173
+   ```
+
+6. Railway will automatically redeploy (takes 1-2 minutes)
 
 **✅ Frontend Deployed!**
+
+---
+
+### 4.7 Verify CORS is Working
+
+After Railway redeploys, test that CORS is configured correctly:
+
+```bash
+# Replace with your actual Vercel URL
+curl -I -H "Origin: https://your-frontend-url.vercel.app" \
+  'https://your-backend-url.railway.app/api/v1/events?lat=39.1&lon=-76.9'
+```
+
+Look for this header in the response:
+```
+Access-Control-Allow-Origin: https://your-frontend-url.vercel.app
+```
+
+If you see it → CORS is working ✅
+
+If you don't see it:
+- Double-check the `CORS_ORIGIN` value matches your Vercel URL exactly
+- Make sure Railway has finished redeploying (check Deployments tab)
+- Try refreshing your frontend after waiting 2-3 minutes
 
 ---
 
@@ -389,8 +446,26 @@ curl https://your-backend-url.railway.app/health
 **Test Frontend:**
 1. Open: `https://your-frontend-url.vercel.app`
 2. You should see the CarCalendar homepage
-3. Try registering a new account
-4. Try creating an event with an image
+3. **Open browser console** (F12 or Cmd+Option+I) - check for errors
+4. If you see **CORS errors**, go back to Step 4.6 and verify `CORS_ORIGIN` is set correctly
+5. Try registering a new account
+6. Try creating an event with an image
+
+**Common Issue: "Failed to fetch" or CORS errors**
+
+If the frontend can't load events or you see errors in the browser console:
+
+1. **Open Developer Tools** (F12)
+2. **Go to Console tab**
+3. **Look for CORS error**:
+   ```
+   Access to fetch at 'https://...' from origin 'https://...' 
+   has been blocked by CORS policy
+   ```
+
+4. **Solution**: Go to Railway → Backend → Variables → Update `CORS_ORIGIN` to match your Vercel URL exactly
+5. **Wait** for Railway to redeploy (1-2 minutes)
+6. **Hard refresh** your frontend (Cmd+Shift+R or Ctrl+Shift+R)
 
 ### 5.2 Test Full Flow
 
@@ -426,20 +501,47 @@ curl https://your-backend-url.railway.app/health
 2. Verify `DATABASE_URL` in backend environment variables
 3. Ensure PostGIS extension is installed
 
-### Issue: "CORS Error" in browser console
+### Issue: "CORS Error" in browser console (MOST COMMON!)
+
+**Symptoms:**
+- Frontend loads but shows no events
+- Browser console shows: "blocked by CORS policy"
+- Network tab shows failed requests to backend
 
 **Solution:**
-1. Check `CORS_ORIGIN` in Railway backend variables
-2. Make sure it matches your Vercel URL exactly (no trailing slash)
-3. Redeploy backend after updating
+1. **Get your exact Vercel URL** from Vercel dashboard (e.g., `https://car-show-calendar-one.vercel.app`)
+2. **Go to Railway** → Backend service → Variables
+3. **Update `CORS_ORIGIN`** to match your Vercel URL exactly:
+   - ✅ Correct: `https://car-show-calendar-one.vercel.app`
+   - ❌ Wrong: `https://car-show-calendar-one.vercel.app/` (trailing slash)
+   - ❌ Wrong: `http://car-show-calendar-one.vercel.app` (http instead of https)
+4. **Wait 2-3 minutes** for Railway to redeploy
+5. **Hard refresh** your frontend (Cmd+Shift+R or Ctrl+Shift+R)
+
+**Verify it's fixed:**
+```bash
+curl -I -H "Origin: https://your-vercel-url.vercel.app" \
+  'https://your-backend.railway.app/api/v1/events?lat=39&lon=-76'
+```
+Should see: `Access-Control-Allow-Origin: https://your-vercel-url.vercel.app`
 
 ### Issue: Images not uploading
 
 **Solution:**
-1. Verify R2 credentials in Railway variables
-2. Check `STORAGE_TYPE=r2` is set
-3. Ensure `@aws-sdk/client-s3` is installed
-4. Check backend logs in Railway for errors
+1. Verify R2 credentials in Railway variables:
+   - `R2_ACCOUNT_ID` - Find in R2 dashboard URL or endpoint
+   - `R2_ACCESS_KEY_ID` - From API token creation
+   - `R2_SECRET_ACCESS_KEY` - From API token creation
+   - `R2_ENDPOINT` - From API token creation
+   - `R2_PUBLIC_URL` - Your `pub-xxxxx.r2.dev` URL
+   - `R2_BUCKET_NAME` - Should be `car-calendar-images`
+2. Check `STORAGE_TYPE=r2` is set (not `local`)
+3. Ensure `@aws-sdk/client-s3` is installed in backend
+4. Check backend logs in Railway for specific errors
+
+**Finding R2 Account ID:**
+- Look at R2 dashboard URL: `https://dash.cloudflare.com/[ACCOUNT_ID]/r2/overview`
+- Or check your R2 endpoint: `https://[account-id].r2.cloudflarestorage.com`
 
 ### Issue: Frontend shows blank page
 
