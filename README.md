@@ -5,11 +5,26 @@
 **Status**: MVP Core Features Complete ✅  
 **Methodology**: Spec-Driven Development (SpecKit) + AI-Assisted Coding  
 **Tools**: SpecKit for specifications, OpenCode/Claude for implementation  
-**Live Demo**: [Deployed on Railway](https://car-show-calendar-production.up.railway.app)
 
 Discover car shows and meets in your area. Create events, RSVP, follow organizers, and connect with the car community.
 
-📖 **[Deployment Guide](./DEPLOYMENT.md)** - Deploy your own instance for free (or ~$5/month)
+---
+
+## 🌐 Using CarCalendar
+
+### For Users
+**Live Application**: [car-show-calendar-production.up.railway.app](https://car-show-calendar-production.up.railway.app)
+
+The app is currently deployed and available for testing. Feel free to create an account, browse events, and try out the features!
+
+### For Developers
+Interested in contributing or learning from the code? Here are your options:
+
+**Option 1: Contribute** (Recommended)  
+Submit a pull request to improve the main application. See the [API contracts](./specs/001-car-show-discovery/contracts/api-contracts.md) and [specifications](./specs/001-car-show-discovery/spec.md) to understand the system.
+
+**Option 2: Fork & Deploy Your Own**  
+If you want to experiment with major changes or use this as a base for your own project, see the [Deployment Guide](./DEPLOYMENT.md). Note: This is a learning project, so deploying your own instance is mainly useful for educational purposes or significant modifications.
 
 ---
 
@@ -182,19 +197,17 @@ CarCalendar/
 
 ## 🚀 Deployment
 
-Want to deploy your own instance? See the **[Deployment Guide](./DEPLOYMENT.md)** for step-by-step instructions.
+**Current Deployment**: The app is live at [car-show-calendar-production.up.railway.app](https://car-show-calendar-production.up.railway.app)
 
-**Options:**
-- 💰 **~$5/month** - Railway (backend) + Supabase (database, free) + Vercel (frontend, free) + R2 (storage, free)
-- 💸 **100% Free** - Render.com (backend, sleeps) + Supabase (database) + Vercel (frontend) + R2 (storage)
+**For Learning Purposes**: If you want to deploy your own instance to experiment with the infrastructure or make significant modifications, see the **[Deployment Guide](./DEPLOYMENT.md)**. 
 
-**Live Demo**: [https://car-show-calendar-production.up.railway.app](https://car-show-calendar-production.up.railway.app)
+The deployment guide includes:
+- Step-by-step setup instructions
+- Multiple hosting options (~$5/month or 100% free)
+- Database migration procedures
+- Testing and validation steps
 
-**Test Deployment**:
-```bash
-# Test any deployed backend
-node test-deployment.js https://your-backend-url.railway.app
-```
+**Note**: For general contributions or feature requests, please submit a pull request rather than deploying your own instance.
 
 ---
 
@@ -393,13 +406,34 @@ Features planned but not yet implemented:
 - [ ] **Advanced Filtering** - Filter by car type, date range, etc.
 - [ ] **Map View** - View events on an interactive map
 
-## 🤝 About Contributions
+## 🤝 Contributing
 
-This is a personal learning project demonstrating spec-driven development and AI collaboration as an **intentional extreme experiment**. I wrote the specifications, and the AI handled architecture and implementation to explore the limits of AI-assisted development.
+This is a personal learning project demonstrating spec-driven development and AI collaboration. While it was built as an educational exercise, contributions are welcome!
 
-**Note**: In future projects, I plan to use a more balanced approach—leveraging AI for appropriate tasks while personally implementing areas where hands-on learning is valuable.
+### Ways to Contribute
 
-If you're interested in the methodology or specifications, feel free to explore the `/specs` directory to see how I structured the requirements.
+**Report Issues** 🐛  
+Found a bug? [Open an issue](https://github.com/hippolippo/Car-Show-Calendar/issues) with details about what you experienced.
+
+**Suggest Features** 💡  
+Have an idea for improvement? Check the [Future Enhancements](#-future-enhancements) section and open an issue to discuss.
+
+**Submit Pull Requests** 🔧  
+Want to contribute code? 
+1. Fork the repository
+2. Create a feature branch
+3. Follow the existing code style and patterns (see `/specs` for architecture)
+4. Write tests for new features
+5. Submit a PR with a clear description
+
+**Learn from the Code** 📚  
+This project demonstrates:
+- Spec-driven development with SpecKit
+- AI-assisted implementation (see `AGENTS.md`)
+- Full-stack architecture (Node.js + React + PostgreSQL)
+- RESTful API design (see `/specs/001-car-show-discovery/contracts/`)
+
+Feel free to explore the `/specs` directory to understand how specifications drove the implementation.
 
 ---
 
