@@ -68,27 +68,15 @@ router.get('/test-r2', async (req, res) => {
   }
 });
 
-// Debug upload endpoint - simplified version
-router.post('/image-debug', authenticate, async (req, res) => {
-  try {
-    // Check if multer processed the file
-    console.log('Debug upload - headers:', req.headers['content-type']);
-    console.log('Debug upload - body type:', typeof req.body);
-    console.log('Debug upload - has file:', !!req.file);
-    
-    res.json({
-      success: true,
-      message: 'Upload endpoint reached',
-      hasFile: !!req.file,
-      bodyType: typeof req.body,
-      contentType: req.headers['content-type']
-    });
-  } catch (error) {
-    res.status(500).json({
-      error: error.message,
-      stack: error.stack
-    });
-  }
+// Ping endpoint to test if authenticated requests work
+router.post('/ping', authenticate, async (req, res) => {
+  console.log('📍 Upload ping received from:', req.headers.origin || 'unknown');
+  res.json({
+    success: true,
+    message: 'Upload endpoint is reachable',
+    authenticated: true,
+    timestamp: new Date().toISOString()
+  });
 });
 
 // Upload image (authentication required)
