@@ -10,7 +10,7 @@ export const jwtConfig = {
   cookieOptions: {
     httpOnly: true, // Prevent JavaScript access
     secure: process.env.NODE_ENV === 'production', // HTTPS only in production
-    sameSite: process.env.NODE_ENV === 'production' ? 'strict' : 'lax', // lax for development (cross-port), strict for production
+    sameSite: process.env.NODE_ENV === 'production' ? 'none' : 'lax', // 'none' for cross-site in production, 'lax' for dev
     maxAge: parseInt(process.env.JWT_COOKIE_MAX_AGE) || 7 * 24 * 60 * 60 * 1000, // 7 days
   }
 };
