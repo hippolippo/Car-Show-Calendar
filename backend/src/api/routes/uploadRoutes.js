@@ -23,6 +23,51 @@ router.get('/config', (req, res) => {
   });
 });
 
+// Test R2 connection
+router.get('/test-r2', async (req, res) => {
+  try {
+    const { S3Client, PutObjectCommand } = await import('@aws-sdk/client-s3');
+    
+    const client = new S3Client({
+      region: 'auto',
+      endpoint: process.env.R2_ENDPOINT,
+      credentials: {
+        accessKeyId: process.env.R2_ACCESS_KEY_ID,
+        secretAccessKey: process.env.R2_SECRET_ACCESS_KEY
+      }
+    });
+    
+    const testContent = Buffer.from('Test from CarCalendar - ' + new Date().toISOString());
+    const testKey = `test/${Date.now()}-test.txt`;
+    
+    const command = new PutObjectCommand({
+      Bucket: process.env.R2_BUCKET_NAME,
+      Key: testKey,
+      Body: testContent,
+      ContentType: 'text/plain'
+    });
+    
+    await client.send(command);
+    
+    res.json({
+      success: true,
+      message: 'R2 connection successful',
+      fileKey: testKey,
+      publicUrl: `${process.env.R2_PUBLIC_URL}/${testKey}`
+    });
+  } catch (error) {
+    res.status(500).json({
+      success: false,
+      error: {
+        message: error.message,
+        code: error.code,
+        name: error.name,
+        stack: error.stack
+      }
+    });
+  }
+});
+
 // Upload image (authentication required)
 router.post('/image', authenticate, uploadMiddleware, uploadImage);
 
