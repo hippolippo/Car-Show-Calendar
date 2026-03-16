@@ -124,8 +124,10 @@ async function testImageUpload() {
   // For testing, let's use a simple approach with fetch
 
   try {
-    // We need to use FormData from a library
+    // Use https.request instead of fetch for better form-data compatibility
+    const https = require('https');
     const FormData = require('form-data');
+    
     const form = new FormData();
     form.append('image', fileBuffer, {
       filename: fileName,
@@ -133,38 +135,48 @@ async function testImageUpload() {
     });
 
     const url = `${API_BASE}/upload/image`;
-    const headers = {
-      ...form.getHeaders(),
-      'Cookie': cookies
-    };
-
     console.log('Uploading to:', url);
     console.log('Authenticated:', cookies.length > 0);
 
-    const response = await fetch(url, {
-      method: 'POST',
-      body: form,
-      headers: headers
+    // Use https.request for proper multipart/form-data streaming
+    const uploadResult = await new Promise((resolve, reject) => {
+      const urlParts = new URL(url);
+      const options = {
+        method: 'POST',
+        hostname: urlParts.hostname,
+        path: urlParts.pathname,
+        headers: {
+          ...form.getHeaders(),
+          'Cookie': cookies
+        }
+      };
+
+      const req = https.request(options, (res) => {
+        let data = '';
+        res.on('data', chunk => data += chunk);
+        res.on('end', () => {
+          try {
+            const json = JSON.parse(data);
+            resolve({ status: res.statusCode, data: json });
+          } catch (e) {
+            resolve({ status: res.statusCode, data: data });
+          }
+        });
+      });
+
+      req.on('error', reject);
+      form.pipe(req);
     });
 
-    const contentType = response.headers.get('content-type');
-    let responseData;
-    
-    if (contentType && contentType.includes('application/json')) {
-      responseData = await response.json();
-    } else {
-      responseData = await response.text();
-    }
-
-    if (!response.ok) {
+    if (uploadResult.status !== 200) {
       console.error('❌ Upload failed');
-      console.error('Status:', response.status);
-      console.error('Response:', JSON.stringify(responseData, null, 2));
+      console.error('Status:', uploadResult.status);
+      console.error('Response:', JSON.stringify(uploadResult.data, null, 2));
       return false;
     }
 
     console.log('✅ Upload successful!');
-    console.log('Response:', JSON.stringify(responseData, null, 2));
+    console.log('Response:', JSON.stringify(uploadResult.data, null, 2));
     return true;
 
   } catch (error) {
