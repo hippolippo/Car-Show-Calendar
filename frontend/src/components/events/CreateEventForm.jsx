@@ -181,9 +181,18 @@ export default function CreateEventForm() {
       // Upload image first if provided
       if (imageFile) {
         setUploading(true);
-        const uploadResult = await uploadImage(imageFile);
-        formData.flierUrl = uploadResult.url;
-        setUploading(false);
+        try {
+          const uploadResult = await uploadImage(imageFile);
+          formData.flierUrl = uploadResult.url;
+        } catch (uploadError) {
+          // Check if it's an authentication error
+          if (uploadError.message.includes('Authentication') || uploadError.message.includes('401')) {
+            throw new Error('Please login again to upload images. Your session may have expired.');
+          }
+          throw uploadError;
+        } finally {
+          setUploading(false);
+        }
       }
 
       const event = await createEvent(formData);
