@@ -68,7 +68,53 @@ router.get('/test-r2', async (req, res) => {
   }
 });
 
+// Debug upload endpoint - simplified version
+router.post('/image-debug', authenticate, async (req, res) => {
+  try {
+    // Check if multer processed the file
+    console.log('Debug upload - headers:', req.headers['content-type']);
+    console.log('Debug upload - body type:', typeof req.body);
+    console.log('Debug upload - has file:', !!req.file);
+    
+    res.json({
+      success: true,
+      message: 'Upload endpoint reached',
+      hasFile: !!req.file,
+      bodyType: typeof req.body,
+      contentType: req.headers['content-type']
+    });
+  } catch (error) {
+    res.status(500).json({
+      error: error.message,
+      stack: error.stack
+    });
+  }
+});
+
 // Upload image (authentication required)
-router.post('/image', authenticate, uploadMiddleware, uploadImage);
+router.post('/image', authenticate, (req, res, next) => {
+  // Wrap multer to catch its errors
+  uploadMiddleware(req, res, (err) => {
+    if (err) {
+      console.error('❌ Multer error:', {
+        message: err.message,
+        code: err.code,
+        name: err.name,
+        stack: err.stack
+      });
+      return res.status(400).json({
+        error: {
+          code: 'UPLOAD_ERROR',
+          message: err.message,
+          details: {
+            name: err.name,
+            code: err.code
+          }
+        }
+      });
+    }
+    next();
+  });
+}, uploadImage);
 
 export default router;
