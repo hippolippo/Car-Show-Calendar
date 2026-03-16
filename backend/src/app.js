@@ -15,8 +15,6 @@ const isDevelopment = process.env.NODE_ENV !== 'production';
 const allowedOrigins = [
   'http://localhost:5173',
   'http://127.0.0.1:5173',
-  'http://192.168.86.30:5173', // Allow access from local network
-  'http://192.168.86.30:8080', // Allow test pages
   process.env.CORS_ORIGIN
 ].filter(Boolean);
 

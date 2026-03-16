@@ -24,7 +24,6 @@ async function startServer() {
     console.log(`\n🚗 CarCalendar API Server`);
     console.log(`Environment: ${process.env.NODE_ENV || 'development'}`);
     console.log(`Server running on http://localhost:${PORT}`);
-    console.log(`Network access: http://192.168.86.30:${PORT}`);
     console.log(`Health check: http://localhost:${PORT}/health`);
     console.log(`\nPress Ctrl+C to stop\n`);
   });
