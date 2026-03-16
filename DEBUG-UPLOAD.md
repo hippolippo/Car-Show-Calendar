@@ -51,12 +51,15 @@ The logs will show the R2 configuration. Check if these are set in Railway:
 **Symptom:** Logs show `hasAccessKey: false` or similar
 **Solution:** Add the missing variables in Railway → Variables tab
 
-### Issue: Invalid R2 endpoint format
-**Symptom:** Error like "Invalid endpoint" or "Connection refused"
+### Issue: Invalid R2 endpoint format ⚠️ COMMON MISTAKE
+**Symptom:** Error like "Invalid endpoint", "Connection refused", or "NoSuchBucket"
 **Solution:** 
-- Endpoint format should be: `https://<account-id>.r2.cloudflarestorage.com`
+- ❌ **WRONG**: `https://<account-id>.r2.cloudflarestorage.com/car-calendar-images`
+- ✅ **CORRECT**: `https://<account-id>.r2.cloudflarestorage.com`
+- **Do NOT include the bucket name in the endpoint!**
+- The bucket name goes in `R2_BUCKET_NAME` separately
+- Do NOT use the R2.dev URL as the endpoint (that's for public access)
 - Find your account ID in Cloudflare dashboard URL or R2 settings
-- Do NOT use the R2.dev URL as the endpoint
 
 ### Issue: Invalid credentials
 **Symptom:** Error like "Access Denied" or "Invalid access key"

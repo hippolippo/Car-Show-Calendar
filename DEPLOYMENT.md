@@ -303,6 +303,12 @@ R2_PUBLIC_URL=https://pub-xxxxx.r2.dev
 PUBLIC_URL_BASE=https://your-backend-url.railway.app
 ```
 
+**⚠️ IMPORTANT - Common R2_ENDPOINT Mistake:**
+- ❌ **WRONG**: `https://abcd1234.r2.cloudflarestorage.com/car-calendar-images`
+- ✅ **CORRECT**: `https://abcd1234.r2.cloudflarestorage.com`
+- **Do NOT include the bucket name in R2_ENDPOINT!**
+- The bucket name goes in `R2_BUCKET_NAME` separately
+
 **Finding Your R2 Account ID:**
 
 Your R2 Account ID is in the R2 endpoint URL or dashboard:
