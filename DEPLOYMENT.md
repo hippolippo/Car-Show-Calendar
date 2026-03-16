@@ -725,6 +725,24 @@ Want to keep it completely free? Use **Render.com** instead of Railway for the b
 
 ---
 
+## 🔧 Known Issues & Fixes
+
+### Logout Works Without Authentication
+
+**Feature:** Users can always logout, even with invalid/expired tokens.
+
+**Why this matters:**
+- Prevents "stuck logged in" state
+- Works even if JWT expires while using the app
+- Clears frontend state even if backend is unreachable
+
+**Implementation:**
+- Backend: Logout endpoint doesn't require authentication
+- Frontend: Always clears local state (even if API fails)
+- See `LOGOUT-FIX.md` for technical details
+
+---
+
 **Congratulations! Your app is now live! 🎉**
 
 Visit your deployed app at: `https://your-frontend-url.vercel.app`
