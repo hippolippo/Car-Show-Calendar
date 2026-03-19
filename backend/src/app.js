@@ -22,6 +22,12 @@ const allowedOrigins = [
   ...corsOrigins
 ].filter(Boolean);
 
+// Log allowed origins on startup for debugging
+if (process.env.NODE_ENV === 'production') {
+  console.log('🔒 CORS allowed origins:', allowedOrigins);
+  console.log('🔒 Allow Vercel previews:', process.env.ALLOW_VERCEL_PREVIEWS === 'true');
+}
+
 const corsOptions = {
   origin: function (origin, callback) {
     // Allow requests with no origin (like mobile apps or curl)
