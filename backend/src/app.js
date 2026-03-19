@@ -12,10 +12,14 @@ const app = express();
 // CORS configuration
 const isDevelopment = process.env.NODE_ENV !== 'production';
 
+// Parse CORS_ORIGIN - supports comma-separated list
+const corsOriginEnv = process.env.CORS_ORIGIN || '';
+const corsOrigins = corsOriginEnv.split(',').map(origin => origin.trim()).filter(Boolean);
+
 const allowedOrigins = [
   'http://localhost:5173',
   'http://127.0.0.1:5173',
-  process.env.CORS_ORIGIN
+  ...corsOrigins
 ].filter(Boolean);
 
 const corsOptions = {
@@ -28,12 +32,18 @@ const corsOptions = {
       return callback(null, true);
     }
     
+    // Check exact match
     if (allowedOrigins.indexOf(origin) !== -1) {
-      callback(null, true);
-    } else {
-      console.log('CORS blocked origin:', origin);
-      callback(new Error('Not allowed by CORS'));
+      return callback(null, true);
     }
+    
+    // In production, allow all *.vercel.app subdomains if enabled
+    if (process.env.ALLOW_VERCEL_PREVIEWS === 'true' && origin?.endsWith('.vercel.app')) {
+      return callback(null, true);
+    }
+    
+    console.log('CORS blocked origin:', origin);
+    callback(new Error('Not allowed by CORS'));
   },
   credentials: true, // Allow cookies
   optionsSuccessStatus: 200
