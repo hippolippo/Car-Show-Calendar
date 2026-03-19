@@ -19,19 +19,21 @@ export default function EventCard({ event, onRSVPChange }) {
   return (
     <div className="event-card">
       {/* Event Flier Image */}
-      {event.flierUrl ? (
-        <div className="event-card-image-wrapper">
-          <img 
-            src={getImageUrl(event.flierUrl)} 
-            alt={`${event.name} flier`}
-            className="event-card-image"
-          />
-        </div>
-      ) : (
-        <div className="event-card-image-wrapper">
-          <div className="event-card-no-image">🚗</div>
-        </div>
-      )}
+      <Link to={`/events/${event.id}`}>
+        {event.flierUrl ? (
+          <div className="event-card-image-wrapper">
+            <img 
+              src={getImageUrl(event.flierUrl)} 
+              alt={`${event.name} flier`}
+              className="event-card-image"
+            />
+          </div>
+        ) : (
+          <div className="event-card-image-wrapper">
+            <div className="event-card-no-image">🚗</div>
+          </div>
+        )}
+      </Link>
       
       <div className="event-card-header">
         <h3>
